@@ -14,6 +14,17 @@ app.config ($stateProvider, $urlRouterProvider) ->
         if(toState.name == 'tiles')
           $rootScope.$emit(LinkPageChangedEvent, toParams.page)
 
+  .state 'detail',
+    url: '/detail/{id:int}'
+    templateUrl: settings.includeDir + 'detail.html'
+    controllerAs: 'detailCtrl'
+    controller: ($stateParams, $scope) ->
+      @pictureId = $stateParams.id
+      $scope.mainCtrl.dataPromise.then =>
+        @picture = $scope.mainCtrl.data.data[@pictureId]
+        $scope.picture = @picture
+        $scope.pictureId = @pictureId
+
   $urlRouterProvider.otherwise('/tiles/0');
   return
 
@@ -25,6 +36,10 @@ logError = (msg) ->
   if console and typeof console.log == 'function'
     console.log '[' + appName + '][ERR]: ' + msg
 
+applyNewWindow = (link, data) ->
+  if angular.isDefined(link.newWindow)
+    data.newWindow = link.newWindow
+
 applyFromSettingsRules = (data) ->
   lId = data.linkId
   links = settings.links.filter((link) -> link.id == lId)
@@ -34,15 +49,21 @@ applyFromSettingsRules = (data) ->
     link = links[0]
     switch link.type
       when 'prefix'
-        data.data = data.data.map((item) ->
+        data.data = data.data.map (item) ->
           item.link = link.url + item.link
           item
-        )
-        if angular.isDefined(link.newWindow)
-          data.newWindow = link.newWindow
+        applyNewWindow(link, data)
       else
         logError 'Unknown link type: ' + link.type
         break
+
+applyGalleryLinks = (data) ->
+  idx = 0
+  data.newWindow = false
+  data.data = data.data.map (item) ->
+    item.galleryPicture = item.link
+    item.link = "#/detail/" + idx++
+    item
 
 app.service 'utils', ->
   @range = (start, stop, step) ->
@@ -87,7 +108,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
   logDebug 'starting loading file: ' + dataFile
   mainCtrl.initPage = 0
   mainCtrl.dataLoaded = false
-  $http.get(dataFile).success((data) ->
+  @dataPromise = $http.get(dataFile).success((data) ->
     mainCtrl.data = data
     thumbnailIdx = settings.firstThumbnailIndex or 1
     data.data.forEach (item) ->
@@ -102,6 +123,9 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
         break
       when 'fromSettings'
         applyFromSettingsRules mainCtrl.data
+      when 'gallery'
+        applyGalleryLinks mainCtrl.data
+        break
       else
         $log.error 'Unknown data type: ' + mainCtrl.data.type
     mainCtrl.openLinksInNewWindow = if angular.isDefined(mainCtrl.data.newWindow) then mainCtrl.data.newWindow else true
@@ -112,6 +136,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
       item
     )
     mainCtrl.dataLoaded = true
+    mainCtrl.numberOfPictures = -> mainCtrl.data.data.length
     if mainCtrl.initPage != 0 then mainCtrl.changePage(mainCtrl.initPage, false)
   ).error (msg) ->
     $log.error 'Unable to fetch data file \'' + dataFile + '\': ' + msg
@@ -139,6 +164,9 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
 
   @getCurrentPage = ->
     mainCtrl.currentPage
+
+  @pageForPicture = (id) ->
+    id / mainCtrl.pageSize
 
   @goPageRelative = (pos, doScroll) ->
     mainCtrl.changePage mainCtrl.getCurrentPage() + pos, doScroll

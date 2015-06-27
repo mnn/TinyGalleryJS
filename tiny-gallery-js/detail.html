@@ -1,0 +1,34 @@
+<div class="tg-detail">
+
+    <div class="tg-bg-picture" style="background-image: url({{picture.galleryPicture}});">
+    </div>
+
+    <div class="tg-detail-bottom">
+        <div class="tg-detail-title">{{picture.title}}</div>
+        <div class="tg-detail-controls">
+            <div class="tg-detail-controls-item">
+                <div class="tg-control-page"
+                     ng-show="pictureId > 0"
+                     ui-sref="detail({id:pictureId - 1})">
+                    &lt;
+                </div>
+            </div>
+            <div class="tg-detail-controls-item">
+                <div class="tg-control-page tg-detail-back">
+                    <a ui-sref="tiles({page: mainCtrl.pageForPicture(pictureId)})">Back</a>
+                </div>
+                <div class="tg-control-numbering">
+                    {{pictureId + 1}} / {{ mainCtrl.numberOfPictures() }}
+                </div>
+            </div>
+            <div class="tg-detail-controls-item">
+                <div class="tg-control-page"
+                     ng-show="pictureId + 1 < mainCtrl.numberOfPictures()"
+                     ui-sref="detail({id:pictureId + 1})">
+                    &gt;
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
