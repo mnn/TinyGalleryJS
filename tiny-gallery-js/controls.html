@@ -1,14 +1,22 @@
 <div class="tg-controls">
-    <div class="tg-control-page" ng-class="{'tg-control-page-active': ctrl.getCurrentPage() == 0}"
-         ng-click="ctrl.goPageRelative(-1, doScroll)"> &lt; </div>
+    <a ui-sref="tiles({page: ctrl.getCurrentPage() - 1 })"
+       class="tg-control-page"
+       ng-class="{'tg-control-page-active': ctrl.getCurrentPage() == 0}"
+            >
+        &lt;
+    </a>
 
-    <div ng-repeat="num in utils.range(1, ctrl.numberOfPages())" class="tg-control-page"
-         ng-class="{'tg-control-page-active': ctrl.getCurrentPage() + 1 == num}"
-         ng-click="ctrl.changePage(num - 1, doScroll)">
+    <a ng-repeat="num in utils.range(1, ctrl.numberOfPages())" class="tg-control-page"
+       ng-class="{'tg-control-page-active': ctrl.getCurrentPage() + 1 == num}"
+       ui-sref="tiles({page: num - 1})"
+            >
         {{num}}
-    </div>
+    </a>
 
-    <div class="tg-control-page" ng-class="{'tg-control-page-active': ctrl.getCurrentPage() + 1 >= numberOfPages()}"
-         ng-click="ctrl.goPageRelative(1, doScroll)">
-        &gt; </div>
+    <a ui-sref="tiles({page: ctrl.getCurrentPage() + 1 })"
+       class="tg-control-page"
+       ng-class="{'tg-control-page-active': ctrl.getCurrentPage() + 1 >= numberOfPages()}"
+            >
+        &gt;
+    </a>
 </div>

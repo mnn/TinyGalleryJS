@@ -75,6 +75,10 @@
     color: lightgray;
 }
 
+a.tg-control-page-active {
+    color: lightgray;
+}
+
 .tg-control-page:hover:not(.tg-control-page-active) {
     cursor: pointer;
     transform: scale(1.17);

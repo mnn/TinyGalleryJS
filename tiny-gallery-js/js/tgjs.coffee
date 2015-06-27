@@ -1,5 +1,21 @@
 appName = 'TinyGalleryApp'
-app = angular.module(appName, [])
+app = angular.module(appName, ['ui.router'])
+
+LinkPageChangedEvent = "LinkPageChanged"
+
+app.config ($stateProvider, $urlRouterProvider) ->
+  $stateProvider
+  .state 'tiles',
+    url: '/tiles/{page:int}'
+    templateUrl: settings.includeDir + 'tiles.html'
+    controller: ($stateParams, $rootScope) ->
+      $rootScope.$emit(LinkPageChangedEvent, $stateParams.page)
+      $rootScope.$on '$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) =>
+        if(toState.name == 'tiles')
+          $rootScope.$emit(LinkPageChangedEvent, toParams.page)
+
+  $urlRouterProvider.otherwise('/tiles/0');
+  return
 
 logDebug = (msg) ->
   if debug and console and typeof console.log == 'function'
@@ -62,13 +78,15 @@ app.directive 'tinyGallery', ->
   controllerAs: 'mainCtrl'
   controller: 'MainController'
 
-app.controller "MainController", ($http, $scope, $log, $element, $interval) ->
+app.controller "MainController", ($http, $scope, $log, $element, $interval, $rootScope) ->
   mainCtrl = this
   mainCtrl.data = {}
   mainCtrl.currentPage = 0
   mainCtrl.pageSize = 9
   dataFile = settings.dataDir + $scope.src
   logDebug 'starting loading file: ' + dataFile
+  mainCtrl.initPage = 0
+  mainCtrl.dataLoaded = false
   $http.get(dataFile).success((data) ->
     mainCtrl.data = data
     thumbnailIdx = settings.firstThumbnailIndex or 1
@@ -93,8 +111,16 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval) ->
       )
       item
     )
+    mainCtrl.dataLoaded = true
+    if mainCtrl.initPage != 0 then mainCtrl.changePage(mainCtrl.initPage, false)
   ).error (msg) ->
     $log.error 'Unable to fetch data file \'' + dataFile + '\': ' + msg
+
+  $rootScope.$on LinkPageChangedEvent, (event, page) =>
+    if @dataLoaded
+      @changePage page, true
+    else
+      @initPage = page
 
   @numberOfPages = ->
     if !mainCtrl.data or !mainCtrl.data.data
@@ -105,9 +131,10 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval) ->
 
   @changePage = (page, doScroll) ->
     newPage = if page < 0 then 0 else if page >= mainCtrl.numberOfPages() then mainCtrl.numberOfPages() - 1 else page
+    logDebug("Changing page to #{newPage} (raw = #{page})")
     if newPage != mainCtrl.currentPage
       mainCtrl.currentPage = newPage
-      if doScroll
+      if doScroll # TODO: rewrite to scroll only if currently scrolled bellow top controls
         mainCtrl.scrollToTop()
 
   @getCurrentPage = ->
@@ -153,7 +180,8 @@ app.directive 'tinyGalleryControls', ->
   templateUrl: settings.includeDir + 'controls.html'
   controller: ($scope, utils) -> $scope.utils = utils
 
-app.run ($location) ->
+app.run ($location, $rootScope, $state, $stateParams) ->
+  $rootScope.$on("$stateChangeError", console.log.bind(console));
   if $location.url() == '/noSort'
     forceNotSorting = true
 
