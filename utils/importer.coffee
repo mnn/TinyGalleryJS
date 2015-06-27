@@ -28,7 +28,8 @@ app.controller 'ConversionController', ($scope) ->
 
   $scope.generateOutput = ->
     data = $scope.inputService.filter($scope.input)
-    if $scope.thumbnailTimer == '' then $scope.thumbnailTimer = undefined
+    if $scope.thumbnailTimer == null then $scope.thumbnailTimer = undefined
+    if $scope.itemsPerPage == null then $scope.itemsPerPage = undefined
 
     itemsPerPage: $scope.itemsPerPage
     type: 'direct'
