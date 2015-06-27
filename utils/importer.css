@@ -1,0 +1,17 @@
+textarea {
+    width: 97vw;
+    height: 45vh;
+}
+
+#controls {
+    height: 5vh;
+    overflow: auto;
+}
+
+#controls label {
+    margin-right: 20px;
+}
+
+input[type=number]{
+    width: 80px;
+}

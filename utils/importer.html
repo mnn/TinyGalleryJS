@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Importer of pictures</title>
+    <script src="../lib/angular.js"></script>
+    <script src="importer.js"></script>
+    <link href="importer.css" rel="stylesheet" type="text/css"/>
+</head>
+<body ng-app="ImporterApp" ng-controller="ConversionController">
+
+<div id="controls">
+    <label>
+        Input service:
+        <select ng-model="inputService" ng-options="service.name for service in inputServices"></select>
+    </label>
+
+    <label>
+        Thumbnail timer:
+        <input ng-model="thumbnailTimer" type="number">
+        ms
+    </label>
+
+    <label>
+        <input type="checkbox" ng-model="flip">Flip
+    </label>
+
+    <label>
+        Items per page:
+        <input ng-model="itemsPerPage" type="number">
+    </label>
+</div>
+
+<textarea placeholder="Input" ng-model="input"></textarea>
+<textarea placeholder="Output" onClick="this.select()">{{generateOutput() | json}}</textarea>
+
+</body>
+</html>
