@@ -28,9 +28,14 @@ app.config ($stateProvider, $urlRouterProvider) ->
         $scope.pictureId = @pictureId
         start = @pictureId - @thumbnailsHalfCount
         stop = @pictureId + @thumbnailsHalfCount + 1
-        start = 0 if start < 0
+        if start < 0
+          stop += -start
+          start = 0
         lastId = data.length - 1
-        stop = lastId if stop > lastId
+        if stop > lastId
+          start -= stop - lastId
+          start = 0 if start < 0
+          stop = lastId + 1
         $scope.pictures = data.slice(start, stop)
 
   $urlRouterProvider.otherwise('/tiles/0');
