@@ -19,11 +19,19 @@ app.config ($stateProvider, $urlRouterProvider) ->
     templateUrl: settings.includeDir + 'detail.html'
     controllerAs: 'detailCtrl'
     controller: ($stateParams, $scope) ->
+      @thumbnailsHalfCount = 3
       @pictureId = $stateParams.id
       $scope.mainCtrl.dataPromise.then =>
-        @picture = $scope.mainCtrl.data.data[@pictureId]
+        data = $scope.mainCtrl.data.data
+        @picture = data[@pictureId]
         $scope.picture = @picture
         $scope.pictureId = @pictureId
+        start = @pictureId - @thumbnailsHalfCount
+        stop = @pictureId + @thumbnailsHalfCount + 1
+        start = 0 if start < 0
+        lastId = data.length - 1
+        stop = lastId if stop > lastId
+        $scope.pictures = data.slice(start, stop)
 
   $urlRouterProvider.otherwise('/tiles/0');
   return
@@ -61,7 +69,10 @@ applyGalleryLinks = (data) ->
   idx = 0
   data.newWindow = false
   data.data = data.data.map (item) ->
-    item.galleryPicture = item.link
+    item.galleryPicture = data.galleryPrefix + item.link
+    item.thumbnail = item.thumbnail.map (tn) ->
+      tn = data.galleryPrefix + tn
+      tn
     item.link = "#/detail/" + idx++
     item
 
@@ -111,13 +122,15 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
   @dataPromise = $http.get(dataFile).success((data) ->
     mainCtrl.data = data
     thumbnailIdx = settings.firstThumbnailIndex or 1
+    idCounter = 0
+    if mainCtrl.data.flip and !forceNotSorting
+      mainCtrl.data.data = mainCtrl.data.data.reverse()
     data.data.forEach (item) ->
       item.defaultThumbnailIdx = if item.thumbnail.length > thumbnailIdx then thumbnailIdx else 0
       item.currentThumbnailIdx = item.defaultThumbnailIdx
+      item.id = idCounter++
     mainCtrl.pageSize = mainCtrl.data.itemsPerPage
     mainCtrl.thumbnailPrefix = mainCtrl.data.thumbnailPrefix or ''
-    if mainCtrl.data.flip and !forceNotSorting
-      mainCtrl.data.data = mainCtrl.data.data.reverse()
     switch mainCtrl.data.type
       when 'direct'
         break

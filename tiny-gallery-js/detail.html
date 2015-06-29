@@ -1,7 +1,22 @@
 <div class="tg-detail">
 
-    <div class="tg-bg-picture" style="background-image: url({{picture.galleryPicture}});">
+    <div class="tg-detail-top">
+        <div ng-repeat="pic in pictures" class="tg-detail-thumb">
+            <img ng-src="{{pic.thumbnail[0]}}"
+                 class="tg-button"
+                 ui-sref="detail({id: pic.id})"
+                 ng-class="{'tg-detail-thumb-current': pic.id == pictureId}">
+        </div>
     </div>
+
+    <div class="tg-bg-picture"
+         style="background-image: url({{picture.galleryPicture}});">
+    </div>
+    <!--
+        <div class="tg-detail-picture-wrapper">
+            <img ng-src="{{picture.galleryPicture}}" class="tg-detail-picture">
+        </div>
+    -->
 
     <div class="tg-detail-bottom">
         <div class="tg-detail-title">{{picture.title}}</div>
@@ -15,7 +30,7 @@
             </div>
             <div class="tg-detail-controls-item">
                 <div class="tg-control-page tg-detail-back">
-                    <a ui-sref="tiles({page: mainCtrl.pageForPicture(pictureId)})">Back</a>
+                    <a ui-sref="tiles({page: mainCtrl.pageForPicture(pictureId)})">Close</a>
                 </div>
                 <div class="tg-control-numbering">
                     {{pictureId + 1}} / {{ mainCtrl.numberOfPictures() }}
