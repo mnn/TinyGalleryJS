@@ -13,32 +13,43 @@ app.config ($stateProvider, $urlRouterProvider) ->
       $rootScope.$on '$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) =>
         if(toState.name == 'tiles')
           $rootScope.$emit(LinkPageChangedEvent, toParams.page)
+      return
 
   .state 'detail',
     url: '/detail/{id:int}'
     templateUrl: settings.includeDir + 'detail.html'
     controllerAs: 'detailCtrl'
-    controller: ($stateParams, $scope, keyPress, $state) ->
+    controller: ($stateParams, $scope, keyPress, $state, $timeout) ->
+      logDebug 'running detail controller'
       @thumbnailsHalfCount = 3
       @pictureId = $stateParams.id
       @lastId = -1
-      $scope.mainCtrl.dataPromise.then =>
-        data = $scope.mainCtrl.data.data
-        @picture = data[@pictureId]
-        $scope.picture = @picture
-        $scope.pictureId = @pictureId
-        start = @pictureId - @thumbnailsHalfCount
-        stop = @pictureId + @thumbnailsHalfCount + 1
-        if start < 0
-          stop += -start
-          start = 0
-        @lastId = data.length - 1
-        if stop > @lastId
-          start -= stop - @lastId
-          start = 0 if start < 0
-          stop = @lastId + 1
-        $scope.pictures = data.slice(start, stop)
-        $scope.allPictures = data
+      @init = =>
+        logDebug 'detail ctrl detected ready dataPromise'
+        $scope.mainCtrl.dataPromise.then =>
+          logDebug 'detail controller is processing data'
+          data = $scope.mainCtrl.data.data
+          @picture = data[@pictureId]
+          $scope.picture = @picture
+          $scope.pictureId = @pictureId
+          start = @pictureId - @thumbnailsHalfCount
+          stop = @pictureId + @thumbnailsHalfCount + 1
+          if start < 0
+            stop += -start
+            start = 0
+          @lastId = data.length - 1
+          if stop > @lastId
+            start -= stop - @lastId
+            start = 0 if start < 0
+            stop = @lastId + 1
+          $scope.pictures = data.slice(start, stop)
+          $scope.allPictures = data
+      @tryInit = =>
+        logDebug 'detail ctrl: try init'
+        if $scope.mainCtrl.dataPromise then @init()
+        else $timeout @tryInit, 50
+
+      @tryInit()
 
       LEFT_KEY = 37
       RIGHT_KEY = 39
@@ -66,6 +77,8 @@ app.config ($stateProvider, $urlRouterProvider) ->
         if $scope.allPictures and @pictureId
           $scope.allPictures[wrapPictureId(id)].galleryPicture
         else ""
+
+      return # necessary
 
   $urlRouterProvider.otherwise('/tiles/0');
   return
@@ -146,7 +159,7 @@ app.directive 'tinyGallery', ->
 
 app.controller "MainController", ($http, $scope, $log, $element, $interval, $rootScope) ->
   mainCtrl = this
-  mainCtrl.data = {}
+  mainCtrl.data = {empty: true}
   mainCtrl.currentPage = 0
   mainCtrl.pageSize = 9
   dataFile = settings.dataDir + $scope.src
@@ -154,6 +167,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
   mainCtrl.initPage = 0
   mainCtrl.dataLoaded = false
   @dataPromise = $http.get(dataFile).success((data) ->
+    logDebug "data received, got:#{JSON.stringify(data)}\n"
     mainCtrl.data = data
     thumbnailIdx = settings.firstThumbnailIndex or 1
     idCounter = 0
@@ -184,7 +198,9 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
     )
     mainCtrl.dataLoaded = true
     mainCtrl.numberOfPictures = -> mainCtrl.data.data.length
-    if mainCtrl.initPage != 0 then mainCtrl.changePage(mainCtrl.initPage, false)
+    if mainCtrl.initPage != 0
+      logDebug "applying init page #{mainCtrl.initPage}"
+      mainCtrl.changePage(mainCtrl.initPage, false)
   ).error (msg) ->
     $log.error 'Unable to fetch data file \'' + dataFile + '\': ' + msg
 
@@ -247,6 +263,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
         @itemForThumbnailRotation = null
 
   @intervalForThumbnailRotation = $interval(@rotateThumbnail, @data.thumbnailTimer or 1000)
+  return
 
 app.directive 'tinyGalleryControls', ->
   restrict: 'E'

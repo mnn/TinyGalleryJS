@@ -8,3 +8,5 @@
 /utils/importer.js
 /utils/importer.js.map
 /tiny-gallery-js/css/tgjs.css
+/node_modules
+/bower_components
