@@ -18,9 +18,10 @@ app.config ($stateProvider, $urlRouterProvider) ->
     url: '/detail/{id:int}'
     templateUrl: settings.includeDir + 'detail.html'
     controllerAs: 'detailCtrl'
-    controller: ($stateParams, $scope) ->
+    controller: ($stateParams, $scope, keyPress, $state) ->
       @thumbnailsHalfCount = 3
       @pictureId = $stateParams.id
+      @lastId = -1
       $scope.mainCtrl.dataPromise.then =>
         data = $scope.mainCtrl.data.data
         @picture = data[@pictureId]
@@ -31,12 +32,32 @@ app.config ($stateProvider, $urlRouterProvider) ->
         if start < 0
           stop += -start
           start = 0
-        lastId = data.length - 1
-        if stop > lastId
-          start -= stop - lastId
+        @lastId = data.length - 1
+        if stop > @lastId
+          start -= stop - @lastId
           start = 0 if start < 0
-          stop = lastId + 1
+          stop = @lastId + 1
         $scope.pictures = data.slice(start, stop)
+
+      LEFT_KEY = 37
+      RIGHT_KEY = 39
+      ESCAPE_KEY = 27
+
+      wrapPictureId = (id) =>
+        if(id < 0) then 0
+        else if(id > @lastId) then @lastId
+        else id
+
+      keyPress.bind (key) =>
+        goToPic = (id) =>
+          validId = wrapPictureId(id)
+          logDebug("Going to detail pic ##{validId} (raw id = #{id}).")
+          $state.go("detail", {id: validId})
+        switch key
+          when LEFT_KEY then goToPic(@pictureId - 1)
+          when RIGHT_KEY then goToPic(@pictureId + 1)
+          when ESCAPE_KEY
+            $state.go("tiles", {page: $scope.mainCtrl.pageForPicture(@pictureId)})
 
   $urlRouterProvider.otherwise('/tiles/0');
   return
@@ -190,7 +211,8 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
     mainCtrl.changePage mainCtrl.getCurrentPage() + pos, doScroll
 
   @scrollToTop = ->
-    $element[0].querySelector('.tg-cells').scrollIntoView true
+# TODO: rework
+#$element[0].querySelector('.tg-cells').scrollIntoView true
 
   @rotateThumbnail = ->
     item = mainCtrl.itemForThumbnailRotation
@@ -225,6 +247,13 @@ app.directive 'tinyGalleryControls', ->
     ctrl: '='
   templateUrl: settings.includeDir + 'controls.html'
   controller: ($scope, utils) -> $scope.utils = utils
+
+app.service 'keyPress', ->
+  customers = []
+  listener = (evt) => c(evt.keyCode) for c in customers
+  angular.element(document).bind "keypress", listener
+  @bind = (customer) => customers.push(customer)
+  return # necessary
 
 app.run ($location, $rootScope, $state, $stateParams) ->
   $rootScope.$on("$stateChangeError", console.log.bind(console));
