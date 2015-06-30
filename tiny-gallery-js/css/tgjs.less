@@ -220,3 +220,15 @@ a.tg-control-page-active {
   border-width: 2px;
   border-color: @border-common-active-color;
 }
+
+.tg-no-size {
+  width: 0;
+  height: 0;
+}
+
+.tg-detail-preload {
+  .tg-no-size;
+  & img {
+    .tg-no-size;
+  }
+}

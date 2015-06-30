@@ -38,6 +38,7 @@ app.config ($stateProvider, $urlRouterProvider) ->
           start = 0 if start < 0
           stop = @lastId + 1
         $scope.pictures = data.slice(start, stop)
+        $scope.allPictures = data
 
       LEFT_KEY = 37
       RIGHT_KEY = 39
@@ -47,6 +48,8 @@ app.config ($stateProvider, $urlRouterProvider) ->
         if(id < 0) then 0
         else if(id > @lastId) then @lastId
         else id
+
+      $scope.wrapPictureId = wrapPictureId
 
       keyPress.bind (key) =>
         goToPic = (id) =>
@@ -58,6 +61,11 @@ app.config ($stateProvider, $urlRouterProvider) ->
           when RIGHT_KEY then goToPic(@pictureId + 1)
           when ESCAPE_KEY
             $state.go("tiles", {page: $scope.mainCtrl.pageForPicture(@pictureId)})
+
+      $scope.getPicLink = (id) =>
+        if $scope.allPictures and @pictureId
+          $scope.allPictures[wrapPictureId(id)].galleryPicture
+        else ""
 
   $urlRouterProvider.otherwise('/tiles/0');
   return

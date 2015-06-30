@@ -18,6 +18,11 @@
         </div>
     -->
 
+    <div class="tg-detail-preload">
+        <img ng-src="{{getPicLink(pictureId - 1)}}">
+        <img ng-src="{{getPicLink(pictureId + 1)}}">
+    </div>
+
     <div class="tg-detail-bottom">
         <div class="tg-detail-title">{{picture.title}}</div>
         <div class="tg-detail-controls">
