@@ -38,3 +38,4 @@ app.controller 'ConversionController', ($scope) ->
     data: data
 
 app.filter()
+

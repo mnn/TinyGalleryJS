@@ -5,6 +5,7 @@ del = require('del')
 constructConfig = ->
   root = "./"
   src = root + "tiny-gallery-js/"
+  utils = "utils/"
   config =
     root: root
     src: src
@@ -12,6 +13,8 @@ constructConfig = ->
     allLess: [src + "**/*.less"]
     allHtml: [src + "**/*.html"]
     build: root + "build/"
+    utils: utils
+    importerJs: utils + "importer.coffee"
 
 config = constructConfig()
 
@@ -69,7 +72,16 @@ gulp.task 'server', ->
 gulp.task 'serve', ['server', 'watch'], ->
   log("Serving")
 
-# ---
+gulp.task 'importer', ->
+  log("Building importer")
+  gulp.src(config.importerJs)
+  .pipe($.coffee())
+  .pipe(gulp.dest(config.utils))
+
+gulp.task 'watch-importer', ->
+  gulp.watch [config.importerJs], ['importer']
+
+#---
 
 clean = (path, done) ->
   log('Cleaning: ' + $.util.colors.blue(path))
