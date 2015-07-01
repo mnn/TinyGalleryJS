@@ -1,4 +1,11 @@
 <div class="tg-controls">
+    <a ui-sref="tiles({page: 0})"
+       class="tg-control-page"
+       ng-class="{'tg-control-page-active': ctrl.getCurrentPage() <= 0}"
+            >
+        &lt;&lt;
+    </a>
+
     <a ui-sref="tiles({page: ctrl.getCurrentPage() - 1 })"
        class="tg-control-page"
        ng-class="{'tg-control-page-active': ctrl.getCurrentPage() == 0}"
@@ -19,8 +26,15 @@
 
     <a ui-sref="tiles({page: ctrl.getCurrentPage() + 1 })"
        class="tg-control-page"
-       ng-class="{'tg-control-page-active': ctrl.getCurrentPage() + 1 >= numberOfPages()}"
+       ng-class="{'tg-control-page-active': ctrl.getCurrentPage() + 1 >= ctrl.numberOfPages()}"
             >
         &gt;
+    </a>
+
+    <a ui-sref="tiles({page: ctrl.numberOfPages() - 1 })"
+       class="tg-control-page"
+       ng-class="{'tg-control-page-active': ctrl.getCurrentPage() + 1 >= ctrl.numberOfPages()}"
+            >
+        &gt;&gt;
     </a>
 </div>
