@@ -6,12 +6,16 @@
         &lt;
     </a>
 
-    <a ng-repeat="num in utils.range(1, ctrl.numberOfPages())" class="tg-control-page"
+    <span ng-show="ctrl.nearPagesOpenLeft()">&ctdot;</span>
+
+    <a ng-repeat="num in ctrl.getNearPages()" class="tg-control-page"
        ng-class="{'tg-control-page-active': ctrl.getCurrentPage() + 1 == num}"
        ui-sref="tiles({page: num - 1})"
             >
         {{num}}
     </a>
+
+    <span ng-show="ctrl.nearPagesOpenRight()">&ctdot;</span>
 
     <a ui-sref="tiles({page: ctrl.getCurrentPage() + 1 })"
        class="tg-control-page"

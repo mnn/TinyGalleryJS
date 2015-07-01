@@ -157,7 +157,7 @@ app.directive 'tinyGallery', ->
   controllerAs: 'mainCtrl'
   controller: 'MainController'
 
-app.controller "MainController", ($http, $scope, $log, $element, $interval, $rootScope) ->
+app.controller "MainController", ($http, $scope, $log, $element, $interval, $rootScope, utils) ->
   mainCtrl = this
   mainCtrl.data = {empty: true}
   mainCtrl.currentPage = 0
@@ -217,8 +217,10 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
 
   @numberOfPages = mainCtrl.numberOfPages
 
-  @changePage = (page, doScroll) ->
-    newPage = if page < 0 then 0 else if page >= mainCtrl.numberOfPages() then mainCtrl.numberOfPages() - 1 else page
+  @wrapPageNumber = (page) => if page < 0 then 0 else if page >= mainCtrl.numberOfPages() then mainCtrl.numberOfPages() - 1 else page
+
+  @changePage = (page, doScroll) =>
+    newPage = @wrapPageNumber(page)
     logDebug("Changing page to #{newPage} (raw = #{page})")
     if newPage != mainCtrl.currentPage
       mainCtrl.currentPage = newPage
@@ -263,6 +265,20 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
         @itemForThumbnailRotation = null
 
   @intervalForThumbnailRotation = $interval(@rotateThumbnail, @data.thumbnailTimer or 1000)
+
+  @nearPagesCount = settings.nearPagesCount or 3
+
+  @getNearPages = =>
+    start = @wrapPageNumber(@getCurrentPage() - @nearPagesCount)
+    stop = @wrapPageNumber(@getCurrentPage() + @nearPagesCount)
+    utils.range(start + 1, stop + 1)
+
+  @nearPagesOpenLeft = =>
+    @getCurrentPage() > @nearPagesCount
+
+  @nearPagesOpenRight = =>
+    @getCurrentPage() < @numberOfPages() - @nearPagesCount - 1
+
   return
 
 app.directive 'tinyGalleryControls', ->
