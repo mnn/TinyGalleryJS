@@ -39,7 +39,7 @@ app.config ($stateProvider, $urlRouterProvider) ->
             start = 0
           @lastId = data.length - 1
           if stop > @lastId
-            start -= stop - @lastId
+            start -= stop - @lastId - 1
             start = 0 if start < 0
             stop = @lastId + 1
           $scope.pictures = data.slice(start, stop)
