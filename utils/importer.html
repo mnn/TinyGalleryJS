@@ -29,10 +29,14 @@
         Items per page:
         <input ng-model="itemsPerPage" type="number">
     </label>
+
+    <label>
+        <input type="checkbox" ng-model="autoSelect">Auto-select
+    </label>
 </div>
 
 <textarea placeholder="Input" ng-model="input"></textarea>
-<textarea placeholder="Output" onClick="this.select()">{{generateOutput() | json}}</textarea>
+<textarea placeholder="Output" ng-click="outputClicked($event)">{{generateOutput() | json}}</textarea>
 
 </body>
 </html>

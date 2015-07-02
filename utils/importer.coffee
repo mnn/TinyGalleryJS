@@ -73,6 +73,7 @@ app.controller 'ConversionController', ($scope) ->
   }]
   $scope.inputService = $scope.inputServices[0]
   $scope.flip = true
+  $scope.autoSelect = true
 
   $scope.generateOutput = ->
     service = $scope.inputService
@@ -85,5 +86,9 @@ app.controller 'ConversionController', ($scope) ->
     thumbnailTimer: $scope.thumbnailTimer
     flip: $scope.flip
     data: data
+
+  $scope.outputClicked = ($event) =>
+    if $scope.autoSelect then $event.target.select()
+
 
 app.filter()
