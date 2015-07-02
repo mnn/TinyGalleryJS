@@ -3,6 +3,12 @@ app = angular.module(appName, ['ui.router'])
 
 LinkPageChangedEvent = "LinkPageChanged"
 
+settings = TinyGalleryAppSettings
+settings.includeDir = settings.includeDir or './tiny-gallery-js/'
+
+debug = settings.debug or false
+forceNotSorting = false
+
 app.config ($stateProvider, $urlRouterProvider) ->
   $stateProvider
   .state 'tiles',
@@ -138,10 +144,6 @@ app.service 'utils', ->
     a
   return # necessary
 
-settings = TinyGalleryAppSettings
-debug = true
-forceNotSorting = false
-
 app.filter 'startFrom', ->
   (input, start) ->
     if !input
@@ -182,7 +184,6 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
       item.id = idCounter++
     @pageSize = @data.itemsPerPage or 9
     @thumbnailPrefix = @data.thumbnailPrefix or ''
-    logDebug("thumbnailPrefix: #{@thumbnailPrefix}")
     switch @data.type
       when 'direct'
         break
