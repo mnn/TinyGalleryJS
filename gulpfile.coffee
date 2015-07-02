@@ -65,6 +65,7 @@ gulp.task 'server', ->
     livereload:
       enable: true
       filter: (path) -> path.match(/(build)|(testing-app)/)
+    directoryListing: true
     open: "testing-app/test.html"
   gulp.src(config.root)
   .pipe($.webserver(serverOptions))

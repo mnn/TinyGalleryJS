@@ -12,12 +12,32 @@ imgtrexToJson = do ->
 
   (input) ->
     if !input then return []
-    input.split('\n').map(parse).filter((a) -> a).map jsonify
+    input.split('\n').map(parse).filter((a) -> a).map(jsonify)
 
 triEzyToJson = do ->
-  # TODO
+  pattyThumbnails = /<img src="(http:\/\/.*\.3ezy\.net\/.*_200.gif)" \/>/g
+  findThumbnails = (input) ->
+    ret = []
+    while (group = pattyThumbnails.exec(input)) != null
+      ret.push(group[1])
+    ret
+
+  pattyThumbChopper = /^(http:\/\/)(.*)(\.3ezy.net\/)(.*)_200(\..*)$/
+  createFullLink = (thumbnail) ->
+    match = thumbnail.match(pattyThumbChopper)
+    if match then match[1] + 'img' + match[3] + match[2] + '/' + match[4] + match[5]
+    else undefined
+
+  jsonify = (input) ->
+    thumbnail: [input[0]]
+    link: input[1]
+
+  addFullLinks = (input) -> [input, createFullLink(input)]
+
   (input) ->
     if !input then return []
+    id = (a) -> a
+    findThumbnails(input).filter(id).map(addFullLinks).map(jsonify)
 
 zimgToJson = do ->
   patty = /^(.*)\.(.*)$/
@@ -33,7 +53,7 @@ zimgToJson = do ->
 
   (input) ->
     if !input then return []
-    input.split('\n').map(parse).filter((a) -> a).map jsonify
+    input.split('\n').map(parse).filter((a) -> a).map(jsonify)
 
 app = angular.module('ImporterApp', [])
 

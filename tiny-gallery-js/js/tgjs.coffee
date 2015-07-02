@@ -115,6 +115,7 @@ applyFromSettingsRules = (data) ->
 applyGalleryLinks = (data) ->
   idx = 0
   data.newWindow = false
+  data.galleryPrefix = data.galleryPrefix or ""
   data.data = data.data.map (item) ->
     item.galleryPicture = data.galleryPrefix + item.link
     item.thumbnail = item.thumbnail.map (tn) ->
@@ -177,7 +178,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
       item.defaultThumbnailIdx = if item.thumbnail.length > thumbnailIdx then thumbnailIdx else 0
       item.currentThumbnailIdx = item.defaultThumbnailIdx
       item.id = idCounter++
-    mainCtrl.pageSize = mainCtrl.data.itemsPerPage
+    mainCtrl.pageSize = mainCtrl.data.itemsPerPage or 9
     mainCtrl.thumbnailPrefix = mainCtrl.data.thumbnailPrefix or ''
     switch mainCtrl.data.type
       when 'direct'
@@ -231,7 +232,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
     mainCtrl.currentPage
 
   @pageForPicture = (id) ->
-    id / mainCtrl.pageSize
+    Math.floor (id / mainCtrl.pageSize)
 
   @goPageRelative = (pos, doScroll) ->
     mainCtrl.changePage mainCtrl.getCurrentPage() + pos, doScroll
