@@ -9,10 +9,13 @@ app.config ($stateProvider, $urlRouterProvider) ->
     url: '/tiles/{page:int}'
     templateUrl: settings.includeDir + 'tiles.html'
     controller: ($stateParams, $rootScope) ->
+      logDebug ("running tiles controller")
       $rootScope.$emit(LinkPageChangedEvent, $stateParams.page)
+      ###
       $rootScope.$on '$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) =>
         if(toState.name == 'tiles')
           $rootScope.$emit(LinkPageChangedEvent, toParams.page)
+      ###
       return
 
   .state 'detail',
@@ -159,50 +162,47 @@ app.directive 'tinyGallery', ->
   controller: 'MainController'
 
 app.controller "MainController", ($http, $scope, $log, $element, $interval, $rootScope, utils) ->
-  mainCtrl = this
-  mainCtrl.data = {empty: true}
-  mainCtrl.currentPage = 0
-  mainCtrl.pageSize = 9
+  @data = {empty: true}
+  @currentPage = 0
+  @pageSize = 9
   dataFile = settings.dataDir + $scope.src
   logDebug 'starting loading file: ' + dataFile
-  mainCtrl.initPage = 0
-  mainCtrl.dataLoaded = false
-  @dataPromise = $http.get(dataFile).success((data) ->
-    logDebug "data received, got:#{JSON.stringify(data)}\n"
-    mainCtrl.data = data
+  @initPage = 0
+  @dataLoaded = false
+  @dataPromise = $http.get(dataFile).success((dataFromJson) =>
+    logDebug "data received, got:#{JSON.stringify(dataFromJson)}\n"
+    @data = dataFromJson
     thumbnailIdx = settings.firstThumbnailIndex or 1
     idCounter = 0
-    if mainCtrl.data.flip and !forceNotSorting
-      mainCtrl.data.data = mainCtrl.data.data.reverse()
-    data.data.forEach (item) ->
+    if @data.flip and !forceNotSorting
+      @data.data = @data.data.reverse()
+    @data.data.forEach (item) ->
       item.defaultThumbnailIdx = if item.thumbnail.length > thumbnailIdx then thumbnailIdx else 0
       item.currentThumbnailIdx = item.defaultThumbnailIdx
       item.id = idCounter++
-    mainCtrl.pageSize = mainCtrl.data.itemsPerPage or 9
-    mainCtrl.thumbnailPrefix = mainCtrl.data.thumbnailPrefix or ''
-    switch mainCtrl.data.type
+    @pageSize = @data.itemsPerPage or 9
+    @thumbnailPrefix = @data.thumbnailPrefix or ''
+    logDebug("thumbnailPrefix: #{@thumbnailPrefix}")
+    switch @data.type
       when 'direct'
         break
       when 'fromSettings'
-        applyFromSettingsRules mainCtrl.data
+        applyFromSettingsRules @data
       when 'gallery'
-        applyGalleryLinks mainCtrl.data
+        applyGalleryLinks @data
         break
       else
-        $log.error 'Unknown data type: ' + mainCtrl.data.type
-    mainCtrl.openLinksInNewWindow = if angular.isDefined(mainCtrl.data.newWindow) then mainCtrl.data.newWindow else true
-    mainCtrl.data.data = mainCtrl.data.data.map((item) ->
-      item.thumbnail = item.thumbnail.map((thumbLink) ->
-        mainCtrl.thumbnailPrefix + thumbLink
-      )
+        $log.error 'Unknown data type: ' + @data.type
+    @openLinksInNewWindow = if angular.isDefined(@data.newWindow) then @data.newWindow else true
+    @data.data = @data.data.map (item) =>
+      item.thumbnail = item.thumbnail.map((thumbLink) => @thumbnailPrefix + thumbLink)
       item
-    )
-    mainCtrl.dataLoaded = true
-    mainCtrl.numberOfPictures = -> mainCtrl.data.data.length
-    if mainCtrl.initPage != 0
-      logDebug "applying init page #{mainCtrl.initPage}"
-      mainCtrl.changePage(mainCtrl.initPage, false)
-  ).error (msg) ->
+    @dataLoaded = true
+    @numberOfPictures = => @data.data.length
+    if @initPage != 0
+      logDebug "applying init page #{@initPage}"
+      @changePage(@initPage, false)
+  ).error (msg) =>
     $log.error 'Unable to fetch data file \'' + dataFile + '\': ' + msg
 
   $rootScope.$on LinkPageChangedEvent, (event, page) =>
@@ -211,41 +211,36 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
     else
       @initPage = page
 
-  @numberOfPages = ->
-    if !mainCtrl.data or !mainCtrl.data.data
+  @numberOfPages = =>
+    if !@data or !@data.data
       return 0
-    Math.ceil mainCtrl.data.data.length / mainCtrl.pageSize
+    Math.ceil @data.data.length / @pageSize
 
-  @numberOfPages = mainCtrl.numberOfPages
-
-  @wrapPageNumber = (page) => if page < 0 then 0 else if page >= mainCtrl.numberOfPages() then mainCtrl.numberOfPages() - 1 else page
+  @wrapPageNumber = (page) => if page < 0 then 0 else if page >= @numberOfPages() then @numberOfPages() - 1 else page
 
   @changePage = (page, doScroll) =>
     newPage = @wrapPageNumber(page)
     logDebug("Changing page to #{newPage} (raw = #{page})")
-    if newPage != mainCtrl.currentPage
-      mainCtrl.currentPage = newPage
+    if newPage != @currentPage
+      @currentPage = newPage
       if doScroll # TODO: rewrite to scroll only if currently scrolled bellow top controls
-        mainCtrl.scrollToTop()
+        @scrollToTop()
 
-  @getCurrentPage = ->
-    mainCtrl.currentPage
+  @getCurrentPage = => @currentPage
 
-  @pageForPicture = (id) ->
-    Math.floor (id / mainCtrl.pageSize)
+  @pageForPicture = (id) => Math.floor (id / @pageSize)
 
-  @goPageRelative = (pos, doScroll) ->
-    mainCtrl.changePage mainCtrl.getCurrentPage() + pos, doScroll
+  @goPageRelative = (pos, doScroll) => @changePage @getCurrentPage() + pos, doScroll
 
-  @scrollToTop = ->
+  @scrollToTop = =>
 # TODO: rework
 #$element[0].querySelector('.tg-cells').scrollIntoView true
 
-  @rotateThumbnail = ->
-    item = mainCtrl.itemForThumbnailRotation
+  @rotateThumbnail = =>
+    item = @itemForThumbnailRotation
     if item
-      if mainCtrl.skipOneThumbRotation
-        mainCtrl.skipOneThumbRotation = false
+      if @skipOneThumbRotation
+        @skipOneThumbRotation = false
       else
         item.currentThumbnailIdx += 1
         if item.currentThumbnailIdx >= item.thumbnail.length
@@ -254,12 +249,12 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
   @itemForThumbnailRotation = null
   @intervalForThumbnailRotation = null
 
-  @startThumbnailRotation = (item) ->
+  @startThumbnailRotation = (item) =>
     @itemForThumbnailRotation = item
     @itemForThumbnailRotation.currentThumbnailIdx = 0
     @skipOneThumbRotation = true
 
-  @stopThumbnailRotation = (item) ->
+  @stopThumbnailRotation = (item) =>
     if @intervalForThumbnailRotation
       if @itemForThumbnailRotation
         @itemForThumbnailRotation.currentThumbnailIdx = @itemForThumbnailRotation.defaultThumbnailIdx
@@ -280,7 +275,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
   @nearPagesOpenRight = =>
     @getCurrentPage() < @numberOfPages() - @nearPagesCount - 1
 
-  return
+  return # necessary
 
 app.directive 'tinyGalleryControls', ->
   restrict: 'E'
