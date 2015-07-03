@@ -18,7 +18,7 @@ You can try TGJS [over there](http://mnn.github.io/tgjs).
 
 Features
 ========
-* entirely client side, no need for hosting with dynamic language support
+* entirely client side, no need for hosting with dynamic pages support (like PHP or Java)
 * data file (JSON) can be generated via in-built importer (image hostings), Gallery Importer application (also generates thumbnails, used for locally hosted files) or, if needed, by hand
 * smart pagination
 * title and duration labels in tiles view for any picture
