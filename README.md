@@ -11,6 +11,31 @@ Showcase
 You can try TGJS [over there](http://mnn.github.io/tgjs).
 
 
+Usage
+=====
+Include dependencies (Angular and ui-router).
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js"></script>
+```
+
+Optionally state settings.
+
+```javascript
+      var TinyGalleryAppSettings = { dataDir: "./data/" };
+```
+
+Include built files.
+
+```html
+<script src="tgjs.js"></script>
+<link href="tgjs.css" rel="stylesheet" type="text/css"/>
+```
+
+**TODO**: versioning and downloads
+
+
 Configuration
 =============
 It is done by creating global object named `TinyGalleryAppSettings`.
@@ -39,7 +64,7 @@ Configuration object is not required, if not found default values will be used.
 All paths should end with a slash.
 
 ## Example
-```
+```javascript
       var TinyGalleryAppSettings = {
             dataDir: "./data/",
             links: [{
@@ -74,12 +99,19 @@ Data file format
 | gallery         | Expects thumbnails and links to be file names and `galleryPrefix` property in data object to be a common prefix (typically a path). Translates links to lead to a detail view of a clicked item. |
 
 ## Item format
-**TODO**
+Properties are interpreted according to `data.type` (and `settings.links`).
+
+| Name                           | Description                                              |
+| ------------------------------ | -------------------------------------------------------- |
+| thumbnail {string[]}           | an array of paths to thumbnails |
+| link {string}                  | path to a picture of link to a picture page |
+| duration {string}              | a label shown over picture (tiles view) |
+| title {string}                 | a label shown over picture (tiles view) |
 
 ## Example
 
 ### Gallery type
-```
+```javascript
 {
   "itemsPerPage": 9,
   "type": "gallery",
@@ -101,7 +133,19 @@ Data file format
 
 Compilation
 ===========
-Compilation is done via [Gulp](http://gulpjs.com/), all needed files should appear in directory `build` (templates are in-lined in a JS file).
+Required utilities for compilation can be obtained via [npm](https://www.npmjs.com/).
+
+```
+npm install
+```
+
+If you are planning on modifying this library you can use [bower](http://bower.io/) to get dependencies.
+
+```
+bower install
+```
+
+Compilation is done via [Gulp](http://gulpjs.com/), all files needed for deployment should appear in directory `build` (templates are in-lined in a JS file).
 
 ```
 gulp build
