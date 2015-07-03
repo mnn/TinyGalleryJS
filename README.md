@@ -68,6 +68,7 @@ Data file format
 
 ## Types
 | Name            | Description                                                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | direct          | no special links processing                                                                                                         |
 | fromSettings    | uses `linkId` property in data object as a reference to `settings.links`, applies transformations describes there                   |
 | gallery         | expects thumbnails and links to be file names and `galleryPrefix` property in data object to be a common prefix (typically a path). translates links to lead to a detail view of a clicked item. |
@@ -100,7 +101,8 @@ Data file format
 
 Compilation
 ===========
-[Gulp](http://gulpjs.com/)
+Compilation is done via [Gulp](http://gulpjs.com/), all needed files should appear in directory `build` (templates are in-lined in a JS file).
+
 ```
 gulp build
 ```
