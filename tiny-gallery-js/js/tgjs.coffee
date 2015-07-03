@@ -4,7 +4,7 @@ app = angular.module(appName, ['ui.router'])
 LinkPageChangedEvent = "LinkPageChanged"
 
 loadSettings = ->
-  settings = TinyGalleryAppSettings or {}
+  settings = window.TinyGalleryAppSettings or {}
   settings.includeDir = settings.includeDir or './tiny-gallery-js/'
   settings.dataDir = settings.dataDir or './'
   settings.nearPagesCount = settings.nearPagesCount or 3

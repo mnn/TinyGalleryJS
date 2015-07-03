@@ -1,6 +1,6 @@
 {
   "name": "TinyGalleryJS",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "monnef",
   "description": "Tiny library providing basic gallery entirely on a client side.",
   "homepage": "https://github.com/mnn/TinyGalleryJS",

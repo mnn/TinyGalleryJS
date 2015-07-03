@@ -16,6 +16,17 @@ Showcase
 You can try TGJS [over there](http://mnn.github.io/tgjs).
 
 
+Features
+========
+* entirely client side, no need for hosting with dynamic language support
+* data file (JSON) can be generated via in-built importer (image hostings), Gallery Importer application (also generates thumbnails, used for locally hosted files) or, if needed, by hand
+* smart pagination
+* title and duration labels in tiles view for any picture
+* next/previous/close hot keys in detail view
+* multiple thumbnails, changing on hover
+* proper links even though it is a client side application
+
+
 Usage
 =====
 Include dependencies (Angular and ui-router).
@@ -37,6 +48,13 @@ Include built files (you can download them at [releases page](releases)).
 <script src="tgjs.js"></script>
 <link href="tgjs.css" rel="stylesheet" type="text/css"/>
 ```
+
+And insert a gallery tag.
+
+```html
+<tiny-gallery src="data/gallery.json"></tiny-gallery>
+```
+
 
 Configuration
 =============
