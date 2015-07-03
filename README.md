@@ -42,7 +42,7 @@ Optionally state settings.
       var TinyGalleryAppSettings = { dataDir: "./data/" };
 ```
 
-Include built files (you can download them at [releases page](releases)).
+Include built files (you can download them at [releases page](https://github.com/mnn/TinyGalleryJS/releases)).
 
 ```html
 <script src="tgjs.js"></script>
