@@ -14,6 +14,7 @@ imgtrexToJson = do ->
     if !input then return []
     input.split('\n').map(parse).filter((a) -> a).map(jsonify)
 
+
 triEzyToJson = do ->
   pattyThumbnails = /<img src="(http:\/\/.*\.3ezy\.net\/.*_200.gif)" \/>/g
   findThumbnails = (input) ->
@@ -39,6 +40,7 @@ triEzyToJson = do ->
     id = (a) -> a
     findThumbnails(input).filter(id).map(addFullLinks).map(jsonify)
 
+
 zimgToJson = do ->
   patty = /^(.*)\.(.*)$/
 
@@ -55,6 +57,23 @@ zimgToJson = do ->
     if !input then return []
     input.split('\n').map(parse).filter((a) -> a).map(jsonify)
 
+
+im9ToJson = do ->
+  patty = /^(http:\/\/)(.*)(\.im9.eu\/)(.*\.)(.*)$/
+  parse = (input) ->
+    match = input.match(patty)
+    if match and match.length == 6 then [input, match[1] + 't' + match[3] + match[4] + 'jpg']
+    else undefined
+
+  jsonify = (input) ->
+    thumbnail: [input[1]]
+    link: input[0]
+
+  (input) ->
+    if !input then return []
+    input.split('\n').map(parse).filter((a) -> a).map(jsonify)
+
+
 app = angular.module('ImporterApp', [])
 
 app.controller 'ConversionController', ($scope) ->
@@ -69,6 +88,10 @@ app.controller 'ConversionController', ($scope) ->
   }, {
     name: 'Zimg.se'
     filter: zimgToJson
+    type: 'gallery'
+  }, {
+    name: 'im9.eu'
+    filter: im9ToJson
     type: 'gallery'
   }]
   $scope.inputService = $scope.inputServices[0]
