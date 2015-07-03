@@ -3,11 +3,31 @@ app = angular.module(appName, ['ui.router'])
 
 LinkPageChangedEvent = "LinkPageChanged"
 
-settings = TinyGalleryAppSettings
-settings.includeDir = settings.includeDir or './tiny-gallery-js/'
+loadSettings = ->
+  settings = TinyGalleryAppSettings or {}
+  settings.includeDir = settings.includeDir or './tiny-gallery-js/'
+  settings.dataDir = settings.dataDir or './'
+  settings.nearPagesCount = settings.nearPagesCount or 3
+  settings.thumbnailsHalfCount = settings.thumbnailsHalfCount or 3
+  settings.firstThumbnailIndex = settings.firstThumbnailIndex or 1
+  settings.links = settings.links or []
+  settings
+
+settings = loadSettings()
 
 debug = settings.debug or false
 forceNotSorting = false
+
+logDebug = (msg) ->
+  if debug and console and typeof console.log == 'function'
+    console.log '[' + appName + '][DEBUG]: ' + msg
+
+logError = (msg) ->
+  if console and typeof console.log == 'function'
+    console.log '[' + appName + '][ERR]: ' + msg
+
+
+logDebug 'settings:\n' + JSON.stringify(settings, null, ' ')
 
 app.config ($stateProvider, $urlRouterProvider) ->
   $stateProvider
@@ -17,11 +37,6 @@ app.config ($stateProvider, $urlRouterProvider) ->
     controller: ($stateParams, $rootScope) ->
       logDebug ("running tiles controller")
       $rootScope.$emit(LinkPageChangedEvent, $stateParams.page)
-      ###
-      $rootScope.$on '$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) =>
-        if(toState.name == 'tiles')
-          $rootScope.$emit(LinkPageChangedEvent, toParams.page)
-      ###
       return
 
   .state 'detail',
@@ -30,7 +45,7 @@ app.config ($stateProvider, $urlRouterProvider) ->
     controllerAs: 'detailCtrl'
     controller: ($stateParams, $scope, keyPress, $state, $timeout) ->
       logDebug 'running detail controller'
-      @thumbnailsHalfCount = 3
+      @thumbnailsHalfCount = settings.thumbnailsHalfCount
       @pictureId = $stateParams.id
       @lastId = -1
       @init = =>
@@ -92,14 +107,6 @@ app.config ($stateProvider, $urlRouterProvider) ->
   $urlRouterProvider.otherwise('/tiles/0');
   return
 
-logDebug = (msg) ->
-  if debug and console and typeof console.log == 'function'
-    console.log '[' + appName + '][DEBUG]: ' + msg
-
-logError = (msg) ->
-  if console and typeof console.log == 'function'
-    console.log '[' + appName + '][ERR]: ' + msg
-
 applyNewWindow = (link, data) ->
   if angular.isDefined(link.newWindow)
     data.newWindow = link.newWindow
@@ -152,9 +159,6 @@ app.filter 'startFrom', ->
     #parse to int
     input.slice start
 
-logDebug 'include dir: ' + settings.includeDir
-logDebug 'data dir: ' + settings.dataDir
-
 app.directive 'tinyGallery', ->
   restrict: 'E'
   scope:
@@ -174,7 +178,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
   @dataPromise = $http.get(dataFile).success((dataFromJson) =>
     logDebug "data received, got:#{JSON.stringify(dataFromJson)}\n"
     @data = dataFromJson
-    thumbnailIdx = settings.firstThumbnailIndex or 1
+    thumbnailIdx = settings.firstThumbnailIndex
     idCounter = 0
     if @data.flip and !forceNotSorting
       @data.data = @data.data.reverse()
@@ -194,7 +198,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
         break
       else
         $log.error 'Unknown data type: ' + @data.type
-    @openLinksInNewWindow = if angular.isDefined(@data.newWindow) then @data.newWindow else true
+    @openLinksInNewWindow = if angular.isDefined(@data.newWindow) then @data.newWindow else false
     @data.data = @data.data.map (item) =>
       item.thumbnail = item.thumbnail.map((thumbLink) => @thumbnailPrefix + thumbLink)
       item
@@ -263,7 +267,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
 
   @intervalForThumbnailRotation = $interval(@rotateThumbnail, @data.thumbnailTimer or 1000)
 
-  @nearPagesCount = settings.nearPagesCount or 3
+  @nearPagesCount = settings.nearPagesCount
 
   @getNearPages = =>
     start = @wrapPageNumber(@getCurrentPage() - @nearPagesCount)

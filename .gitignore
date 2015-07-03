@@ -11,3 +11,5 @@
 /node_modules
 /bower_components
 /build
+/copy-to-stuff.bat
+/copy-to-stuff.sh

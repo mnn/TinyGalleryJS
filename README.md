@@ -13,13 +13,35 @@ You can try TGJS [over there](http://mnn.github.io/tgjs).
 
 Configuration
 =============
-**TODO**
+It is done by creating global object named `TinyGalleryAppSettings`.
+Configuration object is not required, if not found default values will be used.
 
-Example:
+## Settings
+| Name                           | Default value          | Description                                                                                |
+| ------------------------------ | ---------------------- | ------------------------------------------------------------------------------------------ |
+| dataDir {string}               | ./                     | path to data directory                                                                     |
+| includeDir {string}            | ./tiny-gallery-js/     | path to templates directory, do **not** change if you wish to use inline templates         |
+| nearPagesCount {number}        | 3                      | number of pages on each side of currently selected page (in tiles view)                    |
+| thumbnailsHalfCount {number}   | 3                      | number of thumbnails on each side of currently active picture (in detail view)             |
+| debug {boolean}                | false                  | enables console debug output                                                               |
+| firstThumbnailIndex {number}   | 1                      | index of thumbnail to be shown while not hovered (or 0, if there is not enough thumbnails) |
+| links {Object[]}               | []                     | allows to abstract some configuration in data files to configuration                       |
+
+## Settings.links
+| Name                           | Description                                                                                              |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| id {string}                    | identifier of this preset, will be used in data file to reference this record                            |
+| url {string}                   | URL which will be used as a prefix when `prefix` type is chosen                                          |
+| type {string}                  | currently is supported only `prefix` type, which signals that all links will be prefixed by `url` value  |
+| newWindow {boolean}            | enables opening of details of pictures in new window                                                     |
+
+## Note
+All paths should end with a slash.
+
+## Example
 ```
       var TinyGalleryAppSettings = {
-            includeDir: "../tiny-gallery-js/",
-            dataDir: "./",
+            dataDir: "./data/",
             links: [{
                 id: "service1",
                 url: "ladingPage.html#/",
@@ -33,6 +55,7 @@ Example:
 Data file format
 ================
 **TODO**
+
 
 Example:
 ```
