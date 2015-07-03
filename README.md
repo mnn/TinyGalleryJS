@@ -25,7 +25,7 @@ Configuration object is not required, if not found default values will be used.
 | thumbnailsHalfCount {number}   | 3                      | number of thumbnails on each side of currently active picture (in detail view)             |
 | debug {boolean}                | false                  | enables console debug output                                                               |
 | firstThumbnailIndex {number}   | 1                      | index of thumbnail to be shown while not hovered (or 0, if there is not enough thumbnails) |
-| links {Object[]}               | []                     | allows to abstract some configuration in data files to configuration                       |
+| links {Object[]}               | []                     | allows to abstract some configuration options in data files to a configuration object      |
 
 ## Link format (item in settings.links)
 | Name                           | Description                                                                                              |
@@ -56,22 +56,22 @@ Data file format
 ================
 
 ## Data format
-| Name                           | Default value          | Description                                                                                |
-| ------------------------------ | ---------------------- | ------------------------------------------------------------------------------------------ |
-| itemsPerPage {number}          | 9                      | number of pictures per page (tiles view) |
-| type {string}                  | none                   | data type, describes handling of links, picture links and thumbnails (described below) |
-| thumbnailTimer {number}        | 1000                   | ms between changes of thumbnail when hovered |
-| thumbnailPrefix {string}       | empty string           |
-| data {Object[]}                | none                   | list of items to show (by item is meant one picture object in tiles view) |
-| newWindow {boolean}            | false                  | enables opening of details of pictures in new window |
-| flip                           | false                  | reverses order of items (last added item will be shown as first) |
+| Name                           | Default value          | Description                                                                                 |
+| ------------------------------ | ---------------------- | ------------------------------------------------------------------------------------------- |
+| itemsPerPage {number}          | 9                      | number of pictures per page (tiles view)                                                    |
+| type {string}                  | none                   | data type, describes handling of links, picture links and thumbnails (described below)      |
+| thumbnailTimer {number}        | 1000                   | milliseconds between changes of thumbnail when hovered                                      |
+| thumbnailPrefix {string}       | empty string           | string which will be added to all thumbnails                                                |
+| data {Object[]}                | none                   | list of items to show (by item is meant one picture object in tiles view)                   |
+| newWindow {boolean}            | false                  | enables opening of details of pictures in new window                                        |
+| flip                           | false                  | reverses order of items (last added item will be shown as first)                            |
 
 ## Types
 | Name            | Description                                                                                                                         |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | direct          | no special links processing                                                                                                         |
-| fromSettings    | uses `linkId` property in data object as a reference to `settings.links`, applies transformations describes there                   |
-| gallery         | expects thumbnails and links to be file names and `galleryPrefix` property in data object to be a common prefix (typically a path). translates links to lead to a detail view of a clicked item. |
+| fromSettings    | Uses `linkId` property in data object as a reference to `settings.links`, applies transformations described there.                  |
+| gallery         | Expects thumbnails and links to be file names and `galleryPrefix` property in data object to be a common prefix (typically a path). Translates links to lead to a detail view of a clicked item. |
 
 ## Item format
 **TODO**
