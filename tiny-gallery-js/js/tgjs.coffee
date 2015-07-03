@@ -130,7 +130,7 @@ applyFromSettingsRules = (data) ->
 
 applyGalleryLinks = (data) ->
   idx = 0
-  data.newWindow = false
+  data.newWindow = if angular.isDefined(data.newWindow) then data.newWindow else false
   data.galleryPrefix = data.galleryPrefix or ""
   data.data = data.data.map (item) ->
     item.galleryPicture = data.galleryPrefix + item.link
@@ -178,6 +178,12 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
   @dataPromise = $http.get(dataFile).success((dataFromJson) =>
     logDebug "data received, got:#{JSON.stringify(dataFromJson)}\n"
     @data = dataFromJson
+
+    @data.thumbnailTimer = @data.thumbnailTimer or 1000
+    @data.flip = if angular.isDefined(@data.flip) then @data.flip else false
+    @data.itemsPerPage = @data.itemsPerPage or 9
+    @data.thumbnailPrefix = @data.thumbnailPrefix or ''
+
     thumbnailIdx = settings.firstThumbnailIndex
     idCounter = 0
     if @data.flip and !forceNotSorting
@@ -186,8 +192,8 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
       item.defaultThumbnailIdx = if item.thumbnail.length > thumbnailIdx then thumbnailIdx else 0
       item.currentThumbnailIdx = item.defaultThumbnailIdx
       item.id = idCounter++
-    @pageSize = @data.itemsPerPage or 9
-    @thumbnailPrefix = @data.thumbnailPrefix or ''
+    @pageSize = @data.itemsPerPage
+    @thumbnailPrefix = @data.thumbnailPrefix
     switch @data.type
       when 'direct'
         break
@@ -207,6 +213,7 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
     if @initPage != 0
       logDebug "applying init page #{@initPage}"
       @changePage(@initPage, false)
+    @initializeIntervalForThumbnailRotation()
   ).error (msg) =>
     $log.error 'Unable to fetch data file \'' + dataFile + '\': ' + msg
 
@@ -265,7 +272,8 @@ app.controller "MainController", ($http, $scope, $log, $element, $interval, $roo
         @itemForThumbnailRotation.currentThumbnailIdx = @itemForThumbnailRotation.defaultThumbnailIdx
         @itemForThumbnailRotation = null
 
-  @intervalForThumbnailRotation = $interval(@rotateThumbnail, @data.thumbnailTimer or 1000)
+  @initializeIntervalForThumbnailRotation = =>
+    @intervalForThumbnailRotation = $interval(@rotateThumbnail, @data.thumbnailTimer)
 
   @nearPagesCount = settings.nearPagesCount
 
