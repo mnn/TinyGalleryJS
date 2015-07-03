@@ -13,6 +13,7 @@ constructConfig = ->
   pkg =
     npm: root + "package.json"
     bower: root + "bower.json"
+  packageNpm = require(pkg.npm)
   config =
     root: root
     src: src
@@ -34,9 +35,21 @@ constructConfig = ->
     dist: root + "dist/"
     pkg: pkg
     packages: [pkg.npm, pkg.bower]
-    version: require(pkg.npm).version
+    version: packageNpm.version
+    packageNpm: packageNpm
 
 config = constructConfig()
+
+banner = [
+  '/**'
+  ' * <%= pkg.name %> - <%= pkg.description %>'
+  ' * @author <%= pkg.author %>'
+  ' * @version v<%= pkg.version %>'
+  ' * @link <%= pkg.homepage %>'
+  ' * @license <%= pkg.license %>'
+  ' */'
+  ''
+].join('\n')
 
 gulp.task "help", $.taskListing.withFilters(-> false)
 gulp.task "default", ["help"]
@@ -62,6 +75,7 @@ gulp.task "scripts", ->
   .pipe $.concat(config.compiledJsFile)
   .pipe $.if(!config.dev, $.ngAnnotate())
   .pipe $.if(!config.dev, $.uglify())
+  .pipe $.header(banner, {pkg: config.packageNpm})
   .pipe gulp.dest(config.build)
 
 gulp.task "styles", ->

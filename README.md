@@ -1,9 +1,14 @@
 TinyGalleryJS
 =============
 Tiny library providing basic gallery.
-It is entirely client-side. Input gallery is read in a JSON file. This file can be generated from local files, external files (image hosting) or created by hand.
-It supports multiple pages with showing only a fre near pages in controls.
+It is entirely client-side.
+Input gallery is read from a JSON file.
+This file can be generated from local files, external files (image hosting) or created by hand.
+It supports multiple pages with showing only a few near pages in controls.
 In `gallery` mode it shows currently selected image alongside with a bunch of thumbnails of nearby images.
+Every item can have a title and a duration label.
+Gallery supports multiple thumbnails changing on hover.
+These multiple thumbnails can be used when creating a gallery linking videos.
 
 
 Showcase
@@ -147,6 +152,11 @@ Compilation is done via [Gulp](http://gulpjs.com/), all files needed for deploym
 ```
 gulp build
 ```
+
+
+Limitations
+===========
+Only one gallery is allowed per page.
 
 
 License
